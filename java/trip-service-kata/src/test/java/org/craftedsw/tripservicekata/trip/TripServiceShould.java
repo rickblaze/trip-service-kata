@@ -6,13 +6,12 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import org.craftedsw.tripservicekata.data.UserData;
-import org.craftedsw.tripservicekata.exception.UserNotLoggedInException;
+import org.craftedsw.tripservicekata.exception.TripServiceException;
 import org.craftedsw.tripservicekata.user.User;
 import org.craftedsw.tripservicekata.user.UserSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -21,7 +20,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 public class TripServiceShould {
 	
 	private TripService tripService;	
-	private UserSession mockUserSession;
 	private UserData userData;
 	
 	@Before
@@ -32,31 +30,24 @@ public class TripServiceShould {
 	}
 	
 	private void prepareMocks() {
-		mockUserSession = PowerMockito.mock(UserSession.class);
 		mockStatic(UserSession.class);
 		mockStatic(TripDAO.class);
 	}
 
 	@Test
 	public void return_trips_when_logged_user_is_a_friend() throws Exception{
-		when(UserSession.class, "getInstance").thenReturn(mockUserSession);
-		when(mockUserSession.getLoggedUser()).thenReturn(userData.mockLoggedUser());		
-		when(TripDAO.class, "findTripsByUser", any(User.class)).thenReturn(userData.getTrips());
-		assertEquals(1, tripService.getTripsByUser(userData.createFriend()).size());
+		when(TripDAO.class, "findTrips", any(User.class)).thenReturn(userData.getTrips());
+		assertEquals(1, tripService.getTrips(userData.createFriend(), userData.mockLoggedUser()).size());
 	}
 	
 	@Test
 	public void return_no_trips_when_logged_user_is_not_a_friend() throws Exception{	
-		when(UserSession.class, "getInstance").thenReturn(mockUserSession);
-		when(mockUserSession.getLoggedUser()).thenReturn(userData.mockLoggedUser());		
-		when(TripDAO.class, "findTripsByUser", any(User.class)).thenReturn(userData.getTrips());
-		assertEquals(0, tripService.getTripsByUser(userData.createUnknown()).size());
+		when(TripDAO.class, "findTrips", any(User.class)).thenReturn(userData.getTrips());
+		assertEquals(0, tripService.getTrips(userData.createUnknown(), userData.mockLoggedUser()).size());
 	}
 	
-	@Test(expected=UserNotLoggedInException.class)
-	public void throw_user_not_logged_exception_when_logged_user_is_null() throws Exception{
-		when(UserSession.class, "getInstance").thenReturn(mockUserSession);
-		when(mockUserSession.getLoggedUser()).thenReturn(null);
-		tripService.getTripsByUser(null);
+	@Test(expected=TripServiceException.class)
+	public void throw_trip_service_exception_when_logged_user_is_null() throws Exception{
+		tripService.getTrips(null, null);
 	}
 }
