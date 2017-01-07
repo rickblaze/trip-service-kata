@@ -7,11 +7,12 @@ import org.craftedsw.tripservicekata.trip.Trip;
 
 public class User {
 
-	private List<Trip> trips = new ArrayList<Trip>();
-	private List<User> friends = new ArrayList<User>();
+	private List<Trip> trips;
+	private List<User> friends;
 	
-	public List<User> getFriends() {
-		return friends;
+	public User(){
+		trips = new ArrayList<>();
+		friends = new ArrayList<>();
 	}
 	
 	public void addFriend(User user) {
@@ -22,8 +23,7 @@ public class User {
 		trips.add(trip);
 	}
 	
-	public List<Trip> trips() {
-		return trips;
+	public boolean isFriend(User user){
+		return friends.contains(user);
 	}
-
 }
